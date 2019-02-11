@@ -1,0 +1,61 @@
+library(tidyverse)
+
+parole <- read_csv("C:/Users/Admin/Desktop/parole.csv")
+
+
+#CREATE VECTOR LIST OF VARS WE WANT TO MAKE FACTORS#
+factors <- c('male', 'race', 'state', 'crime', 'multiple.offenses', 'violator');
+
+#CONVERT THOSE VARS TO FACTORS USING A LAPPLY FUNCTION
+#ESSENTIALLY, IT DOES "as.factor" TO EVERY VAR IN THAT SUBSET (parole[factors])#
+parole[factors] <- lapply(parole[factors], as.factor)
+
+
+
+parole <- parole %>% 
+  mutate(male = recode_factor(male, '1' = 'Male', '0' = 'Female')) %>% 
+  mutate(race = recode_factor(race, '1' = 'White', '2' = 'Other')) %>% 
+  mutate(state = recode_factor(state, '1' = 'Other', '2' = 'Kentucky', '3' = 'Louisiana', '4' = 'Virginia')) %>% 
+  mutate(multiple.offenses = recode_factor(multiple.offenses, '1' = 'Yes', '0' = 'No')) %>% 
+  mutate(crime = recode_factor(crime, '1' = 'Other', '2' = 'Larceny', '3' = 'Drug-related', '4' = 'Driving-related')) %>% 
+  mutate(violator = recode_factor(violator, '1' = 'Yes', '0' = 'No'))
+
+#TASK 1#
+set.seed(12345)
+train.rows = createDataPartition(y = parole$male, p=0.7, list = FALSE) #70% in training
+train = parole[train.rows,] 
+test = parole[-train.rows,]
+
+#same code as previous assignment
+
+#TASK 2#
+attach(train)
+train1 <- filter(train, ) # insert code here to subset where a row has violator = 'yes'
+
+ggplot(train1, aes(x=)) + geom_bar() #insert variables to see their count for each class (ie male vs female, kentucky vs lousiana, etc)
+ggplot(train1, aes(x=)) + geom_bar()
+ggplot(train1, aes(x=)) + geom_bar()
+ggplot(train1, aes(x=)) + geom_bar()
+ggplot(train1, aes(x=)) + geom_bar()
+ggplot(train1, aes(x=)) + geom_bar()
+ggplot(train1, aes(x=)) + geom_bar()
+
+#Explain why you might be using the graphs above
+
+#Task 3#
+#It looks like men are a majority of parole violators. Make a note of that and what variable is comes from
+
+
+#Task 4#
+#model with revolving utilization.
+mod1 = glm(violator ~ male , train, family = "binomial")
+summary(mod1)
+
+#Use AIC to comment of the goodness of fit for the model
+
+#Task 5#
+linmod <-  glm(train$violator ~ train$state + train$multiple.offenses + train$race, family = 'binomial')
+summary(linmod)
+train_preds = predict(linmod, newdata = train)
+head(train_preds)
+
