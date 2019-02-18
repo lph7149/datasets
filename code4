@@ -1,0 +1,61 @@
+library(readr)
+blood <- read_csv("C:/Users/Admin/Desktop/Blood.csv")
+
+library(tidyverse)
+library(forcats)
+library(caret)
+library(ranger)
+
+blood <- blood %>% 
+  mutate(DonatedMarch = as_factor(as.character(blood$DonatedMarch))) %>% 
+  mutate(DonatedMarch = fct_recode(DonatedMarch, "No" = "0", "Yes" = "1"))
+
+
+#Task 1#
+set.seed(1234)
+train.rows = createDataPartition(y = blood$Mnths_Since_Last, p=0.7, list = FALSE) #70% in training
+train = blood[train.rows,] 
+test = blood[-train.rows,]
+
+#Task 2#
+fit_control = trainControl(method = "cv",  
+                           number = 10) #set up 10 fold cross-validation
+
+set.seed(123)  
+rf_fit = train(DonatedMarch ~.,    
+               data = train,   
+               method = "ranger",  
+               importance = "permutation", 
+               num.trees = 100,
+               trControl = fit_control)
+
+
+#Task 3#
+varImp(rf_fit)
+rf_fit
+
+
+
+#Task 4#
+predRF = predict(rf_fit, train$DonatedMarch)
+head(predRF)
+
+
+
+#Task 5#
+confusionMatrix(predRF, train$DonatedMarch, positive = "Yes")
+
+
+
+
+
+
+#Task 6#
+#Short answer
+
+
+
+#Task 7#
+#Repeat task 4-6 on test dataset
+
+
